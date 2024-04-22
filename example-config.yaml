@@ -14,6 +14,7 @@ tgfs:
   users:
     user:
       password: password
+      admin: true / false
   download:
     chunk_size_kb: 1024
 

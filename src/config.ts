@@ -23,6 +23,7 @@ export type Config = {
     users: {
       [key: string]: {
         password: string;
+        admin?: boolean
       };
     };
     download: {
