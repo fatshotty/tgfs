@@ -17,6 +17,8 @@ import { managerServer, startBot } from './server/manager';
 import { webdavServer } from './server/webdav';
 import { Logger } from './utils/logger';
 
+import {startDB, createFolder, listSubfolder, findByName } from './database/db';
+
 const { argv }: any = yargs(hideBin(process.argv))
   .option('config', {
     alias: 'f',
@@ -104,6 +106,18 @@ const { argv }: any = yargs(hideBin(process.argv))
   //   config.manager.port,
   //   config.manager.path,
   // );
+
+  
+  await startDB();
+  await createFolder(null, 'test');
+  const test = await listSubfolder(null)[0];
+  await createFolder(test, 'innertest');
+  const l = await listSubfolder(test);
+  Logger.info('sub', l);
+
+
+  Logger.info('search', findByName(null, 'test') )
+  Logger.info('search', findByName(null, 'test', true) )
 
   startBot();
 })();

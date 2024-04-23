@@ -6,6 +6,9 @@ import os from 'os';
 import path from 'path';
 
 export type Config = {
+  db: {
+    path: string
+  },
   telegram: {
     api_id: number;
     api_hash: string;
@@ -70,6 +73,9 @@ export const loadConfig = (configPath: string): Config => {
   };
 
   config = {
+    db: {
+      path: cfg['db']['path']
+    },
     telegram: {
       api_id: cfg['telegram']['api_id'],
       api_hash: cfg['telegram']['api_hash'],
@@ -149,6 +155,11 @@ export const createConfig = async (): Promise<string> => {
   };
 
   const res: Config = {
+    db: {
+      path: (await input.text('DB path', {
+        validate: validateNotEmpty,
+      })) as string
+    },
     telegram: {
       api_id: Number(
         await input.text(
