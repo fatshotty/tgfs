@@ -8,7 +8,6 @@ class Entry extends Realm.Object {
   static NAME = 'Entry';
 
   _id?: string;
-  internalId!: string;
   parent?: string
   name!: string
   originalName?: string
@@ -35,6 +34,10 @@ class Entry extends Realm.Object {
     },
     primaryKey: '_id'
   };
+
+  get ID() {
+    return this._id;
+  }
 }
 
 class Part extends Realm.Object<Entry> {
@@ -85,28 +88,21 @@ export async function startDB() : Promise<void> {
 }
 
 
-function getEntryByID(fId: string | {_id: string}) {
-  let pId = '';
-  if ( fId._id ) {
-    pId = fId._id;
-  } else if ( typeof parent === 'string' ) {
-    pId = parent;
-  }
-
-  const p = DB.objectForPrimaryKey(Entry.NAME, pId);
-  if ( !p ) {
-    throw new Error(`cannot find folder by id: ${pId}`);
-  }
-
-  return p;
+export function checkEntryId(id: string) : boolean {
+  return !!DB.objectForPrimaryKey(Entry.NAME, id);
 }
 
+export function createFolder(parent: string | null, name : string) : Realm.Object<Entry> {
 
-export function createFolder(parent, name) : void {
+  let parentFolderId : string | null = null; // default: root folder
+  if ( parent && checkEntryId(parent) ) {
+    parentFolderId = parent;
+  }
 
-  let parentFolderId = null; // default: root folder
-  if ( parent ) {
-    parentFolderId = getEntryByID(parent)._id;
+  const alreadyExistingFolders = findByName(parentFolderId, name);
+
+  if ( alreadyExistingFolders.length > 0 ) {
+    throw `Folder '${name}' already exists in '${parent || 'root'}'`;
   }
 
   const entry = {
@@ -120,36 +116,36 @@ export function createFolder(parent, name) : void {
     mime: 'folder',
   };
 
-  DB.write(() => {
-    DB.create(Entry.NAME, entry, Realm.UpdateMode.Modified);
+  // @ts-ignore
+  return DB.write(() => {
+    return DB.create(Entry.NAME, entry, Realm.UpdateMode.Modified);
   });
 }
 
-export function listSubfolder(parent) : Results<any> {
+export function listSubfolder(parent : string | null) : Results<Entry> {
 
-  let parentFolderId = null; // default: root folder
-  if ( parent ) {
-    parentFolderId = getEntryByID(parent)._id;
+  let parentFolderId : string | null = null; // default: root folder
+  if ( parent && checkEntryId(parent) ) {
+    parentFolderId = parent;
   }
 
   const objs = DB.objects<Entry>( Entry.NAME );
+  // @ts-ignore
   return objs.filtered('parent == $0', parentFolderId);
 }
 
 
-export function findByName(parent: string | null | Entry, name: string, all = false) : Results<any> {
+export function findByName(parent: string | null, name: string, all = false) : Results<any> {
 
   let entries = DB.objects<Entry>( Entry.NAME );
 
   if ( !all ) {
-    let parentFolderId = null;
-    if ( parent ) {
-      parentFolderId = getEntryByID( parent )._id;
+    let parentFolderId : string | null = null;
+    if ( parent && checkEntryId(parent) ) {
+      parentFolderId = parent;
     }
     entries = entries.filtered('parent == $0', parentFolderId);
   }
 
-  entries = entries.filtered('name CONTAINS[c] $0', name);
-
-  return entries;
+  return entries.filtered('name == $0', name);
 }

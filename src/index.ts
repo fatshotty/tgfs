@@ -109,15 +109,17 @@ const { argv }: any = yargs(hideBin(process.argv))
 
   
   await startDB();
+  
   await createFolder(null, 'test');
   const test = await listSubfolder(null)[0];
-  await createFolder(test, 'innertest');
-  const l = await listSubfolder(test);
+  console.log('test is', test._id, test);
+  await createFolder(test._id, 'innertest');
+  const l = await listSubfolder(test._id);
   Logger.info('sub', l);
 
 
-  Logger.info('search', findByName(null, 'test') )
-  Logger.info('search', findByName(null, 'test', true) )
+  Logger.info('search test', findByName(null, 'test') )
+  Logger.info('search innertest', findByName(null, 'innertest', true) )
 
   startBot();
 })();
