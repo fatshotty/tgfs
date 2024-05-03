@@ -1,3 +1,5 @@
+db:
+  path: ./data/
 telegram:
   api_id: your_api_id (mandatory, refer to README)
   api_hash: your_api_hash (mandatory, refer to README)
