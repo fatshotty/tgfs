@@ -19,11 +19,8 @@
     "input": "^1.0.1",
     "ip": "^1.1.9",
     "js-yaml": "^4.1.0",
-<<<<<<< HEAD
     "jsonwebtoken": "^9.0.2",
-=======
     "realm": "^12.7.1",
->>>>>>> 3b286a0 (added realm sdk)
     "telegraf": "^4.15.0",
     "telegram": "^2.20.15",
     "uuid": "^9.0.0",
